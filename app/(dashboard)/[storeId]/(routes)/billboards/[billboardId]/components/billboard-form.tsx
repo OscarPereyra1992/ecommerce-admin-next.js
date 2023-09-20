@@ -23,8 +23,8 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { AlertModal } from "@/components/modals/alert-modal";
-import { ApiAlert } from "@/components/ui/api-alert";
-import { useOrigin } from "@/hooks/use-origin";
+
+
 import ImageUpload from "@/components/ui/image-upload";
 
 interface BillboardFormProps {
@@ -41,7 +41,7 @@ type BillboardFormValues = z.infer<typeof formSchema>;
 export const BillboardForm: React.FC<BillboardFormProps> = ({ initalData }) => {
   const params = useParams();
   const router = useRouter();
-  const origin = useOrigin();
+  
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -54,13 +54,16 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initalData }) => {
   const onSubmit = async (data: BillboardFormValues) => {
     try {
       setLoading(true);
-        if(initalData){
-        await axios.patch(`/api/${params.storeId}/billboards/${params.billboardId}`, data);
-      }else{
+      if (initalData) {
+        await axios.patch(
+          `/api/${params.storeId}/billboards/${params.billboardId}`,
+          data
+        );
+      } else {
         await axios.post(`/api/${params.storeId}/billboards`, data);
       }
       router.refresh();
-      router.push(`/${params.storeId}/billboards`)
+      router.push(`/${params.storeId}/billboards`);
       toast.success(toastMessage);
     } catch (error) {
       toast.error("Algo ha fallado");
@@ -72,9 +75,11 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initalData }) => {
   const onDelete = async () => {
     try {
       setLoading(true);
-      await axios.delete(`/api/${params.storeId}/billboards/${params.billboardId}`);
+      await axios.delete(
+        `/api/${params.storeId}/billboards/${params.billboardId}`
+      );
       router.refresh();
-      router.push("/");
+      router.push(`/${params.storeId}/billboards`);
       toast.success("Billboard deleted");
     } catch (error) {
       toast.error(
@@ -128,11 +133,11 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initalData }) => {
               <FormItem>
                 <FormLabel>Background Image</FormLabel>
                 <FormControl>
-                  <ImageUpload 
-                  value={field.value? [field.value] : []}
-                  disabled={loading}
-                  onChange={(url) => field.onChange(url)}
-                  onRemove={() => field.onChange("")}
+                  <ImageUpload
+                    value={field.value ? [field.value] : []}
+                    disabled={loading}
+                    onChange={(url) => field.onChange(url)}
+                    onRemove={() => field.onChange("")}
                   />
                 </FormControl>
                 <FormMessage />
@@ -163,7 +168,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ initalData }) => {
           </Button>
         </form>
       </Form>
-      <Separator />
+      
     </>
   );
 };
