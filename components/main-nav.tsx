@@ -27,6 +27,13 @@ export function MainNav({
             label: 'Ajustes',
             active: pathname === `/${params.storeId}/settings`
         },
+        {
+            href:`/${params.storeId}/categories`,
+            label: 'Categorias',
+            active: pathname === `/${params.storeId}/categories`
+        },
+        
+        
     ];
     return (
         <nav
