@@ -18,9 +18,8 @@ model Store {
   billboards Billboard[] @relation("StoreToBillboard")
   categories Category[]  @relation("StoreToCategory")
   //sizes cambiar por el que corresponda
-  sizes      Size[]      @relation("StoreToSize")
   //cambiar por el que corresponda
-  colors     Color[]     @relation("StoreToColor")
+
   products   Product[]   @relation("StoreToProduct")
   orders     Order[]     @relation("StoreToOrder")
   createdAt  DateTime    @default(now())
@@ -57,31 +56,7 @@ model Category {
 
 //Este modelo luego cambiarlo por otro selector.
 
-model Size {
-  id        String    @id @default(uuid())
-  storeId   String
-  store     Store     @relation("StoreToSize", fields: [storeId], references: [id])
-  name      String
-  value     String
-  products  Product[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
 
-  @@index([storeId])
-}
-
-model Color {
-  id        String    @id @default(uuid())
-  storeId   String
-  store     Store     @relation("StoreToColor", fields: [storeId], references: [id])
-  name      String
-  value     String
-  products  Product[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@index([storeId])
-}
 
 model Product {
   id         String      @id @default(uuid())
@@ -93,10 +68,7 @@ model Product {
   price      Decimal
   isFeatured Boolean     @default(false)
   isArchived Boolean     @default(false)
-  sizeId     String
-  size       Size        @relation(fields: [sizeId], references: [id])
-  colorId    String
-  color      Color       @relation(fields: [colorId], references: [id])
+  
   images     Image[]
   orderItems OrderItem[]
   createdAt  DateTime    @default(now())
@@ -104,8 +76,7 @@ model Product {
 
   @@index([storeId])
   @@index([categoryId])
-  @@index([colorId])
-  @@index([sizeId])
+ 
 }
 
 model Image {

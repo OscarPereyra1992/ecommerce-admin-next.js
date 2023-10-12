@@ -28,31 +28,13 @@ export function MainNav({
             label: 'Categorias',
             active: pathname === `/${params.storeId}/categories`
         },
-        
-        {
-            //cambiar esto por el que corresponda.
-            href:`/${params.storeId}/sizes`,
-            label: 'Tamaños',
-            active: pathname === `/${params.storeId}/sizes`
-        },
-        {
-            //cambiar esto por el que corresponda.
-            href:`/${params.storeId}/colors`,
-            label: 'Colores',
-            active: pathname === `/${params.storeId}/colors`
-        },
         {
             //cambiar esto por el que corresponda.
             href:`/${params.storeId}/products`,
             label: 'Productos',
             active: pathname === `/${params.storeId}/products`
         },
-        {
-            //cambiar esto por el que corresponda.
-            href:`/${params.storeId}/orders`,
-            label: 'Ordenes',
-            active: pathname === `/${params.storeId}/orders`
-        },
+        
         {
             href:`/${params.storeId}/settings`,
             label: 'Ajustes',
