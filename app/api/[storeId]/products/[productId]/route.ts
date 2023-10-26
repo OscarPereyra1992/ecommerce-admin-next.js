@@ -43,7 +43,7 @@ export async function PATCH(
       name,
       price,
       categoryId,
-      
+      description,
       images,
       isFeatured,
       isArchived,
@@ -54,6 +54,9 @@ export async function PATCH(
     }
     if (!name) {
       return new NextResponse("Error, El nombre es requerido", { status: 400 });
+    }
+    if(!description){
+      return new NextResponse("Error, la descripción es requerida", {status:400});
     }
     if (!images || !images.length) {
       return new NextResponse("Error, Las imagenes son requeridas", {
@@ -93,7 +96,7 @@ export async function PATCH(
         name,
         price,
         categoryId,
-        
+        description,
         
         images:{
           deleteMany: {}

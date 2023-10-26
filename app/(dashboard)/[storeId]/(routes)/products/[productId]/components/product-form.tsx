@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
-import { Category,  Image, Product } from "@prisma/client";
+import { Category, Image, Product } from "@prisma/client";
 import { Trash } from "lucide-react";
 import {
   Form,
@@ -18,14 +18,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { AlertModal } from "@/components/modals/alert-modal";
-import { Checkbox } from "@/components/ui/checkbox"
+import { Checkbox } from "@/components/ui/checkbox";
 import ImageUpload from "@/components/ui/image-upload";
+import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -40,13 +42,13 @@ interface ProductFormProps {
         images: Image[];
       })
     | null;
-    categories: Category[];
-    
+  categories: Category[];
 }
 
 const formSchema = z.object({
   name: z.string().min(1),
   images: z.object({ url: z.string() }).array(),
+  description: z.string().optional(),
   price: z.coerce.number().min(1),
   categoryId: z.string().min(1),
   isFeatured: z.boolean().default(false).optional(),
@@ -55,11 +57,10 @@ const formSchema = z.object({
 
 type ProductFormValues = z.infer<typeof formSchema>;
 
-export const ProductForm: React.FC<ProductFormProps> = ({ 
+export const ProductForm: React.FC<ProductFormProps> = ({
   initalData,
   categories,
-  
- }) => {
+}) => {
   const params = useParams();
   const router = useRouter();
 
@@ -74,6 +75,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const onSubmit = async (data: ProductFormValues) => {
     try {
       setLoading(true);
+      console.log("Datos del formulario:", data);
+
       if (initalData) {
         await axios.patch(
           `/api/${params.storeId}/products/${params.productId}`,
@@ -95,9 +98,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const onDelete = async () => {
     try {
       setLoading(true);
-      await axios.delete(
-        `/api/${params.storeId}/products/${params.productId}`
-      );
+      await axios.delete(`/api/${params.storeId}/products/${params.productId}`);
       router.refresh();
       router.push(`/${params.storeId}/products`);
       toast.success("Producto borrado");
@@ -121,6 +122,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       : {
           name: "",
           images: [],
+          description: "",
           price: 0,
           categoryId: "",
           isFeatured: false,
@@ -197,12 +199,27 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descripción</FormLabel>
+                  <FormControl>
+                   <Textarea {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price</FormLabel>
+                  <FormLabel>Precio</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -215,6 +232,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="categoryId"
@@ -247,54 +265,47 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
-           
-           
+
             <FormField
               control={form.control}
               name="isFeatured"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
-                    <Checkbox 
-                    checked={field.value}
-
-                    // @ts-ignore
-                    onCheckedChange={field.onChange}
+                    <Checkbox
+                      checked={field.value}
+                    
+                      onCheckedChange={field.onChange}
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                      <FormLabel>
-                        Destacado
-                      </FormLabel>
-                      <FormDescription>
-                        Este producto aparecera en la página de inicio
-                      </FormDescription>
-                     </div>
+                    <FormLabel>Destacado</FormLabel>
+                    <FormDescription>
+                      Este producto aparecera en la página de inicio
+                    </FormDescription>
+                  </div>
                 </FormItem>
               )}
             />
-           
+
             <FormField
               control={form.control}
               name="isArchived"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                   <FormControl>
-                    <Checkbox 
-                    checked={field.value}
-
-                    // @ts-ignore
-                    onCheckedChange={field.onChange}
+                    <Checkbox
+                      checked={field.value}
+                      // @ts-ignore
+                      onCheckedChange={field.onChange}
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                      <FormLabel>
-                        Archivado
-                      </FormLabel>
-                      <FormDescription>
-                        Este producto no aparecera en la página
-                      </FormDescription>
-                     </div>
+                    <FormLabel>Archivado</FormLabel>
+                    <FormDescription>
+                      Este producto no aparecera en la página
+                    </FormDescription>
+                  </div>
                 </FormItem>
               )}
             />

@@ -15,6 +15,7 @@ export async function POST(
       price,
       categoryId,
       images,
+      description,
       isFeatured,
       isArchived,
     } = body;
@@ -57,6 +58,7 @@ export async function POST(
       data: {
         name,
         price,
+        description,
         categoryId,
         isFeatured,
         isArchived,
@@ -93,6 +95,7 @@ export async function GET(
       where: {
         storeId: params.storeId,
         categoryId,
+        
         isFeatured: isFeatured ? true : undefined,
         isArchived: false,
       },
