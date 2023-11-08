@@ -15,11 +15,10 @@ export async function GET(
       where: {
         id: params.productId,
       },
-      include:{
+      include: {
         images: true,
         category: true,
-       
-      }
+      },
     });
 
     return NextResponse.json(product);
@@ -55,11 +54,13 @@ export async function PATCH(
     if (!name) {
       return new NextResponse("Error, El nombre es requerido", { status: 400 });
     }
-    if(!description){
-      return new NextResponse("Error, la descripción es requerida", {status:400});
+    if (!description) {
+      return new NextResponse("Error, la descripción es requerida", {
+        status: 400,
+      });
     }
     if (!images || !images.length) {
-      return new NextResponse("Error, Las imagenes son requeridas", {
+      return new NextResponse("Error, Las imágenes son requeridas", {
         status: 400,
       });
     }
@@ -67,12 +68,10 @@ export async function PATCH(
       return new NextResponse("Error, El precio es requerido", { status: 400 });
     }
     if (!categoryId) {
-      return new NextResponse("Error, La categoria es requerida", {
+      return new NextResponse("Error, La categoría es requerida", {
         status: 400,
       });
     }
-   
-   
 
     if (!params.storeId) {
       return new NextResponse("Error, Store ID is required", { status: 400 });
@@ -88,7 +87,36 @@ export async function PATCH(
       return new NextResponse("Acceso no autorizado", { status: 403 });
     }
 
-    await prismaDb.product.update({
+    // Obtén las imágenes existentes del producto que se está actualizando
+    const existingProduct = await prismaDb.product.findUnique({
+      where: {
+        id: params.productId,
+      },
+      include: {
+        images: true,
+      },
+    });
+
+    if (!existingProduct) {
+      return new NextResponse("Producto no encontrado", { status: 404 });
+    }
+
+    const existingImages = existingProduct.images;
+
+    // En la solicitud PATCH, asegúrate de enviar una lista de imágenes actualizada
+    const updatedImages = images || [];
+
+    // Elimina las imágenes que ya no se necesitan
+    const imagesToDelete = existingImages.filter(
+      (existingImage) =>
+        !updatedImages.some(
+          (updatedImage: { url: string }) =>
+            updatedImage.url === existingImage.url
+        )
+    );
+
+    // Actualiza el producto con los datos proporcionados (excepto las imágenes)
+    const updatedProduct = await prismaDb.product.update({
       where: {
         id: params.productId,
       },
@@ -97,34 +125,36 @@ export async function PATCH(
         price,
         categoryId,
         description,
-        
-        images:{
-          deleteMany: {}
-        },
         isFeatured,
-        isArchived
+        isArchived,
       },
     });
 
-    const product = await prisma?.product.update({
-      where:{
-        id: params.productId
-      },
-      data: {
-        images:{
-          createMany:{
-            data: [
-              ...images.map((image: {url: string})=>image)
-            ]
-          }
-        }
-      }
-    })
+    // Elimina las imágenes que ya no se necesitan
+    if (imagesToDelete.length > 0) {
+      await prismaDb.image.deleteMany({
+        where: {
+          id: {
+            in: imagesToDelete.map((image) => image.id),
+          },
+        },
+      });
+    }
 
-    return NextResponse.json(product);
+    // Agrega las nuevas imágenes
+    if (updatedImages.length > 0) {
+      await prismaDb.image.createMany({
+        data: updatedImages.map((image: { url: string }) => ({
+          url: image.url,
+          productId: params.productId,
+        })),
+      });
+    }
+
+    return NextResponse.json(updatedProduct);
   } catch (error) {
     console.log("[PRODUCT_PATCH]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return new NextResponse("Error desconocido", { status: 500 });
   }
 }
 
@@ -164,6 +194,6 @@ export async function DELETE(
     return NextResponse.json(product);
   } catch (error) {
     console.log("[PRODUCT_DELETE]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return new NextResponse("Error desconocido", { status: 500 });
   }
 }
